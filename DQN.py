@@ -66,14 +66,14 @@ class DQNAgent():
         next_state_batch_tensor = torch.tensor(next_state_batch, dtype=torch.float32).to(self.device)
         done_batch_tensor = torch.tensor(done_batch, dtype=torch.float32).unsqueeze(1).to(self.device)
 
-        # Compute the Q-Values for the current state-action pairs
+        # Compute the Q-Values for the current state-action pairsx
         q_values = self.q_net(state_batch_tensor).gather(1, action_batch_tensor)
 
         # Compute the Q-Values for the next state using the target network
         target_q_values = self.target_net(next_state_batch_tensor).max(1)[0]
 
         # Compute the expected Q-Values using the Bellman equation
-        expected_q_values = reward_batch_tensor + (self.discount_factor * target_q_values * (1 - done_batch_tensor))
+        expected_q_values = reward_batch_tensor + (self.gamma * target_q_values * (1 - done_batch_tensor))
 
         # Compute the loss between the predicted and expected Q-Values
         loss = F.smooth_l1_loss(q_values, expected_q_values.detach())
